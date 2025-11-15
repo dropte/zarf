@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-release:
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     permissions:
       id-token: write
       packages: write
@@ -83,7 +83,7 @@ jobs:
           retention-days: 1
 
   validate-release:
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     needs: build-release
     steps:
       # Checkout the repo and setup the tooling for this job
@@ -113,7 +113,7 @@ jobs:
           sudo env "PATH=$PATH" CI=true APPLIANCE_MODE=true CLI_VERSION=$GITHUB_REF_NAME make test-e2e ARCH=amd64
 
   create-release:
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     needs: validate-release
     environment: release
     permissions:

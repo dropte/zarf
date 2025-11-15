@@ -29,7 +29,7 @@ jobs:
   build-release:
     needs: repo-gate
     if: ${{ needs.repo-gate.outputs.should_run == 'true' }}
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     permissions:
       id-token: write
       packages: write
@@ -138,7 +138,7 @@ jobs:
   validate-release:
     needs: [repo-gate, build-release]
     if: ${{ needs.repo-gate.outputs.should_run == 'true' }}
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     env:
       CLI_VERSION: ${{ needs.build-release.outputs.cli_version }}
     steps:
@@ -168,7 +168,7 @@ jobs:
   create-release:
     needs: [repo-gate, build-release]
     if: ${{ needs.repo-gate.outputs.should_run == 'true' }}
-    runs-on: large-ubuntu-zarf-release
+    runs-on: self-hosted
     env:
       CLI_VERSION: ${{ needs.build-release.outputs.cli_version }}
     permissions:
