@@ -34,45 +34,45 @@ jobs:
           CLI_VERSION=$GITHUB_REF_NAME make build-cli-linux-amd
           CLI_VERSION=$GITHUB_REF_NAME make build-cli-linux-arm
 
-      - name: "Zarf Agent: Login to GHCR"
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: dummy
-          password: ${{ github.token }}
+      # - name: "Zarf Agent: Login to GHCR"
+      #   uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+      #   with:
+      #     registry: ghcr.io
+      #     username: dummy
+      #     password: ${{ github.token }}
 
-      - name: "Zarf Agent: Build and Publish the Image"
-        run: |
-          cp build/zarf build/zarf-linux-amd64
-          cp build/zarf-arm build/zarf-linux-arm64
-          docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/zarf-dev/zarf/agent:$GITHUB_REF_NAME .
-          rm build/zarf-linux-amd64
-          rm build/zarf-linux-arm64
-          echo ZARF_AGENT_IMAGE_DIGEST=$(docker buildx imagetools inspect ghcr.io/zarf-dev/zarf/agent:$GITHUB_REF_NAME --format '{{ json . }}' | jq -r .manifest.digest) >> $GITHUB_ENV
+      # - name: "Zarf Agent: Build and Publish the Image"
+      #   run: |
+      #     cp build/zarf build/zarf-linux-amd64
+      #     cp build/zarf-arm build/zarf-linux-arm64
+      #     docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/zarf-dev/zarf/agent:$GITHUB_REF_NAME .
+      #     rm build/zarf-linux-amd64
+      #     rm build/zarf-linux-arm64
+      #     echo ZARF_AGENT_IMAGE_DIGEST=$(docker buildx imagetools inspect ghcr.io/zarf-dev/zarf/agent:$GITHUB_REF_NAME --format '{{ json . }}' | jq -r .manifest.digest) >> $GITHUB_ENV
 
-      - name: Auth with AWS
-        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
-        with:
-          role-to-assume: ${{ secrets.AWS_KMS_ROLE_ARN }}
-          role-session-name: ${{ github.job || github.event.client_payload.pull_request.head.sha || github.sha }}
-          aws-region: us-east-1
-          role-duration-seconds: 3600
+      # - name: Auth with AWS
+      #   uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_KMS_ROLE_ARN }}
+      #     role-session-name: ${{ github.job || github.event.client_payload.pull_request.head.sha || github.sha }}
+      #     aws-region: us-east-1
+      #     role-duration-seconds: 3600
 
-      - name: "Zarf Agent: Sign the Image"
-        run: cosign sign --key awskms:///${{ secrets.COSIGN_AWS_KMS_KEY_ARN }} -a release-engineer=https://github.com/${{ github.actor }} -a version=$GITHUB_REF_NAME ghcr.io/zarf-dev/zarf/agent@$ZARF_AGENT_IMAGE_DIGEST -y
-        env:
-          COSIGN_EXPERIMENTAL: 1
+      # - name: "Zarf Agent: Sign the Image"
+      #   run: cosign sign --key awskms:///${{ secrets.COSIGN_AWS_KMS_KEY_ARN }} -a release-engineer=https://github.com/${{ github.actor }} -a version=$GITHUB_REF_NAME ghcr.io/zarf-dev/zarf/agent@$ZARF_AGENT_IMAGE_DIGEST -y
+      #   env:
+      #     COSIGN_EXPERIMENTAL: 1
 
       # Builds init packages since GoReleaser won't handle this for us
-      - name: Build init-packages For Release
-        run: |
-          make release-init-package ARCH=amd64 AGENT_IMAGE_TAG=$GITHUB_REF_NAME
-          make release-init-package ARCH=arm64 AGENT_IMAGE_TAG=$GITHUB_REF_NAME
+      # - name: Build init-packages For Release
+      #   run: |
+      #     make release-init-package ARCH=amd64 AGENT_IMAGE_TAG=$GITHUB_REF_NAME
+      #     make release-init-package ARCH=arm64 AGENT_IMAGE_TAG=$GITHUB_REF_NAME
 
-      - name: Publish Init Package as OCI and Skeleton
-        run: |
-          CLI_VERSION=$GITHUB_REF_NAME make publish-init-package ARCH=amd64 REPOSITORY_URL=ghcr.io/zarf-dev/packages
-          CLI_VERSION=$GITHUB_REF_NAME make publish-init-package ARCH=arm64 REPOSITORY_URL=ghcr.io/zarf-dev/packages
+      # - name: Publish Init Package as OCI and Skeleton
+      #   run: |
+      #     CLI_VERSION=$GITHUB_REF_NAME make publish-init-package ARCH=amd64 REPOSITORY_URL=ghcr.io/zarf-dev/packages
+      #     CLI_VERSION=$GITHUB_REF_NAME make publish-init-package ARCH=arm64 REPOSITORY_URL=ghcr.io/zarf-dev/packages
 
       # Upload the contents of the build directory for later stages to use
       - name: Upload build artifacts
@@ -161,14 +161,14 @@ jobs:
           echo ARCHIVES_VERSION=$(go list -f '{{.Version}}' -m github.com/mholt/archives) >> $GITHUB_ENV
           echo HELM_VERSION=$(go list -f '{{.Version}}' -m helm.sh/helm/v3) >> $GITHUB_ENV
 
-      - name: Get Brew tap repo token
-        id: brew-tap-token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
-        with:
-          app-id: ${{ secrets.HOMEBREW_TAP_WORKFLOW_GITHUB_APP_ID }}
-          private-key: ${{ secrets.HOMEBREW_TAP_WORKFLOW_GITHUB_APP_SECRET }}
-          owner: defenseunicorns
-          repositories: homebrew-tap
+      # - name: Get Brew tap repo token
+      #   id: brew-tap-token
+      #   uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+      #   with:
+      #     app-id: ${{ secrets.HOMEBREW_TAP_WORKFLOW_GITHUB_APP_ID }}
+      #     private-key: ${{ secrets.HOMEBREW_TAP_WORKFLOW_GITHUB_APP_SECRET }}
+      #     owner: defenseunicorns
+      #     repositories: homebrew-tap
 
       # Create the GitHub release notes, upload artifact backups to S3, publish homebrew recipe
       - name: Run GoReleaser
@@ -179,7 +179,7 @@ jobs:
           args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
-          HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.brew-tap-token.outputs.token }}
+          # HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.brew-tap-token.outputs.token }}
           GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
 
       - name: Report disk space on failure
